@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "747940664978",
+    "project_id": "android-project-dbbae",
+    "storage_bucket": "android-project-dbbae.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:747940664978:android:35a63a7dc27b1ddb7f384b",
+        "android_client_info": {
+          "package_name": "com.example.scratch_ecommerce"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCtsEg8IuSfp8Mw5WEYGnteu8ziox4x-w8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
