@@ -4,6 +4,7 @@ import 'package:scratch_ecommerce/providers/auth_provider.dart';
 import 'signup_screen.dart';
 import 'package:scratch_ecommerce/screens/admin/admin_dashboard.dart';
 import 'package:scratch_ecommerce/screens/home_screen.dart';
+import 'package:scratch_ecommerce/screens/auth/forget_password.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -108,6 +109,18 @@ class _LoginScreenState extends State<LoginScreen> {
                   );
                 },
                 child: const Text('Create an account'),
+              ),
+              // In LoginScreen, add a button for forget password
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ForgetPasswordScreen(),
+                    ),
+                  );
+                },
+                child: const Text('Forgot Password?'),
               ),
             ],
           ),

@@ -15,6 +15,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final _passwordController = TextEditingController();
   final _nameController = TextEditingController();
   final _birthDateController = TextEditingController();
+  final _schoolNameController = TextEditingController(); // New controller
   bool _isLoading = false;
   DateTime? _selectedDate;
 
@@ -80,6 +81,17 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _schoolNameController, // New field for school name
+                  decoration: const InputDecoration(labelText: 'School Name'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your old school name';
+                    }
+                    return null;
+                  },
+                ),
                 const SizedBox(height: 24),
                 _isLoading
                     ? const CircularProgressIndicator()
@@ -117,11 +129,13 @@ class _SignupScreenState extends State<SignupScreen> {
       setState(() => _isLoading = true);
       try {
         final birthDate = _selectedDate!;
+        final schoolName = _schoolNameController.text; // Get school name
         await Provider.of<AuthProvider>(context, listen: false).signUp(
           email: _emailController.text,
           password: _passwordController.text,
           name: _nameController.text,
           birthDate: birthDate,
+          schoolName: schoolName, // Pass school name to signUp
         );
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Signup successful!')),
@@ -142,6 +156,7 @@ class _SignupScreenState extends State<SignupScreen> {
     _passwordController.dispose();
     _nameController.dispose();
     _birthDateController.dispose();
+    _schoolNameController.dispose(); // Dispose the new controller
     super.dispose();
   }
 }
