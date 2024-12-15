@@ -20,33 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _rememberMe =
       false; // Variable to track the "Remember Me" checkbox state
 
-  @override
-  void initState() {
-    super.initState();
-    _autoLogin();
-  }
 
-  Future<void> _autoLogin() async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    await authProvider.autoLogin(); // Attempt to auto-login the user
-
-    // After autoLogin, check if the user is signed in
-    final user = authProvider.user;
-    if (user != null) {
-      // Navigate to the appropriate screen based on the user's role
-      if (user.isAdmin) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const AdminDashboard()),
-        );
-      } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-        );
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -125,25 +99,9 @@ class _LoginScreenState extends State<LoginScreen> {
           password: _passwordController.text,
           rememberMe: _rememberMe, // Pass the rememberMe value
         );
-
-        // Check if the user is an admin
-        final user = Provider.of<AuthProvider>(context, listen: false).user;
-        if (user != null && user.isAdmin) {
-          // Navigate to Admin Dashboard
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const AdminDashboard()),
-          );
-        } else {
-          // Navigate to regular user home screen
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Login successful!')),
-          );
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const HomeScreen()),
-          );
-        }
+             const SnackBar(content: Text('Login successful!')),
+           );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.toString())),

@@ -100,7 +100,7 @@ class AuthProvider with ChangeNotifier {
   }
 
   // Auto-login method that checks for saved credentials
-  Future<void> autoLogin() async {
+  void autoLogin() async { // Changed to synchronous method
     final prefs = await SharedPreferences.getInstance();
     final email = prefs.getString('email');
     final password = prefs.getString('password');
@@ -131,7 +131,7 @@ class AuthProvider with ChangeNotifier {
         return 'Too many login attempts. Please try again later.';
       case 'network-request-failed':
         return 'Network error. Please check your internet connection and try again.';
-      case 'invalid-credential':
+       case 'invalid-credential':
         return 'Wrong email or password. Please try again';
       default:
         return 'Authentication failed. Please try again later.';
