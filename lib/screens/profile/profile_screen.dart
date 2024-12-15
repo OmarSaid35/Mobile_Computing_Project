@@ -99,7 +99,7 @@ class ProfileScreen extends StatelessWidget {
                 vertical: 12,
               ),
             ),
-            child: const Text('Sign Out'),
+            child: const Text('Sign Out',style: TextStyle(color: Colors.white),),
           ),
         ],
       ),
