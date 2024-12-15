@@ -34,6 +34,8 @@ class _ProductManagementState extends State<ProductManagement> {
     final nameController = TextEditingController();
     final priceController = TextEditingController();
     final imageUrlController = TextEditingController();
+    final categoryController = TextEditingController();
+    final quantityController = TextEditingController();
 
     showDialog(
       context: context,
@@ -46,6 +48,14 @@ class _ProductManagementState extends State<ProductManagement> {
                 TextField(
                   controller: nameController,
                   decoration: const InputDecoration(labelText: 'Name'),
+                ),
+                TextField(
+                  controller: categoryController,
+                  decoration: const InputDecoration(labelText: 'Category'),
+                ),
+                TextField(
+                  controller: quantityController,
+                  decoration: const InputDecoration(labelText: 'Quantity'),
                 ),
                 TextField(
                   controller: priceController,
@@ -67,6 +77,8 @@ class _ProductManagementState extends State<ProductManagement> {
             TextButton(
               onPressed: () {
                 if (nameController.text.isNotEmpty &&
+                    categoryController.text.isNotEmpty &&
+                    double.tryParse(quantityController.text) != null &&
                     double.tryParse(priceController.text) != null &&
                     imageUrlController.text.isNotEmpty) {
                   setState(() {
@@ -77,8 +89,8 @@ class _ProductManagementState extends State<ProductManagement> {
                         price: double.parse(priceController.text),
                         imageUrl: imageUrlController.text,
                         description: '',
-                        category: '',
-                        stockQuantity: 0,
+                        category: categoryController.text,
+                        stockQuantity: int.parse(quantityController.text),
                       ),
                     );
                   });
@@ -97,6 +109,8 @@ class _ProductManagementState extends State<ProductManagement> {
     final nameController = TextEditingController(text: product.name);
     final priceController = TextEditingController(text: product.price.toString());
     final imageUrlController = TextEditingController(text: product.imageUrl);
+    final categoryController = TextEditingController(text: product.category);
+    final quantityController = TextEditingController(text: product.stockQuantity.toString());
 
     showDialog(
       context: context,
@@ -109,6 +123,14 @@ class _ProductManagementState extends State<ProductManagement> {
                 TextField(
                   controller: nameController,
                   decoration: const InputDecoration(labelText: 'Name'),
+                ),
+                TextField(
+                  controller: categoryController,
+                  decoration: const InputDecoration(labelText: 'Category'),
+                ),
+                TextField(
+                  controller: quantityController,
+                  decoration: const InputDecoration(labelText: 'Quantity'),
                 ),
                 TextField(
                   controller: priceController,
@@ -139,8 +161,8 @@ class _ProductManagementState extends State<ProductManagement> {
                       price: double.parse(priceController.text),
                       imageUrl: imageUrlController.text,
                       description: product.description,
-                      category: product.category,
-                      stockQuantity: product.stockQuantity,
+                      category: categoryController.text,
+                      stockQuantity: int.parse(quantityController.text),
                     );
                     final index = products.indexWhere((p) => p.id == product.id);
                     if (index != -1) {
@@ -184,7 +206,14 @@ class _ProductManagementState extends State<ProductManagement> {
             fit: BoxFit.cover,
           ),
           title: Text(product.name),
-          subtitle: Text('\$${product.price.toStringAsFixed(2)}'),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Category: ${product.category}'),
+              Text('Stock Quantity: ${product.stockQuantity}'),
+              Text('Price: \$${product.price.toStringAsFixed(2)}'),
+            ],
+          ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [

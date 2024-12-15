@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scratch_ecommerce/screens/admin/analytics_card.dart';
+import 'package:scratch_ecommerce/screens/admin/category_management.dart';
 import 'package:scratch_ecommerce/screens/admin/order_management.dart';
 import 'package:scratch_ecommerce/screens/admin/product_management.dart';
 
@@ -9,7 +10,7 @@ class AdminDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Admin Dashboard'),
@@ -18,6 +19,7 @@ class AdminDashboard extends StatelessWidget {
               Tab(text: 'Overview'),
               Tab(text: 'Products'),
               Tab(text: 'Orders'),
+              Tab(text: "Categories",),
             ],
           ),
         ),
@@ -26,6 +28,7 @@ class AdminDashboard extends StatelessWidget {
             _buildOverviewTab(),
             const ProductManagement(),
             const OrderManagement(),
+            const CategoryManagement(),
           ],
         ),
       ),
