@@ -10,24 +10,24 @@ class ProductManagement extends StatefulWidget {
 
 class _ProductManagementState extends State<ProductManagement> {
   final List<ProductModel> products = [
-    ProductModel(
-      id: '1',
-      name: 'Product 1',
-      price: 4.0,
-      description: 'Sample description 1',
-      category: 'Category 1',
-      stockQuantity: 10,
-      imageUrl: 'https://via.placeholder.com/150',
-    ),
-    ProductModel(
-      id: '2',
-      name: 'Product 2',
-      price: 40.0,
-      description: 'Sample description 2',
-      category: 'Category 2',
-      stockQuantity: 5,
-      imageUrl: 'https://via.placeholder.com/150',
-    ),
+    // ProductModel(
+    //   id: '1',
+    //   name: 'Product 1',
+    //   price: 4.0,
+    //   description: 'Sample description 1',
+    //   category: 'Category 1',
+    //   stockQuantity: 10,
+    //   imageUrl: 'https://via.placeholder.com/150',
+    // ),
+    // ProductModel(
+    //   id: '2',
+    //   name: 'Product 2',
+    //   price: 40.0,
+    //   description: 'Sample description 2',
+    //   category: 'Category 2',
+    //   stockQuantity: 5,
+    //   imageUrl: 'https://via.placeholder.com/150',
+    // ),
   ];
 
   void showAddProductDialog(BuildContext context) {
@@ -70,17 +70,17 @@ class _ProductManagementState extends State<ProductManagement> {
                     double.tryParse(priceController.text) != null &&
                     imageUrlController.text.isNotEmpty) {
                   setState(() {
-                    products.add(
-                      ProductModel(
-                        id: DateTime.now().toString(),
-                        name: nameController.text,
-                        price: double.parse(priceController.text),
-                        imageUrl: imageUrlController.text,
-                        description: '',
-                        category: '',
-                        stockQuantity: 0,
-                      ),
-                    );
+                    // products.add(
+                    //   // ProductModel(
+                    //   //   id: DateTime.now().toString(),
+                    //   //   name: nameController.text,
+                    //   //   price: double.parse(priceController.text),
+                    //   //   imageUrl: imageUrlController.text,
+                    //   //   description: '',
+                    //   //   category: '',
+                    //   //   stockQuantity: 0,
+                    //   // ),
+                    // );
                   });
                   Navigator.of(context).pop();
                 }
@@ -95,7 +95,8 @@ class _ProductManagementState extends State<ProductManagement> {
 
   void showEditProductDialog(BuildContext context, ProductModel product) {
     final nameController = TextEditingController(text: product.name);
-    final priceController = TextEditingController(text: product.price.toString());
+    final priceController =
+        TextEditingController(text: product.price.toString());
     final imageUrlController = TextEditingController(text: product.imageUrl);
 
     showDialog(
@@ -132,21 +133,21 @@ class _ProductManagementState extends State<ProductManagement> {
                 if (nameController.text.isNotEmpty &&
                     double.tryParse(priceController.text) != null &&
                     imageUrlController.text.isNotEmpty) {
-                  setState(() {
-                    final updatedProduct = ProductModel(
-                      id: product.id,
-                      name: nameController.text,
-                      price: double.parse(priceController.text),
-                      imageUrl: imageUrlController.text,
-                      description: product.description,
-                      category: product.category,
-                      stockQuantity: product.stockQuantity,
-                    );
-                    final index = products.indexWhere((p) => p.id == product.id);
-                    if (index != -1) {
-                      products[index] = updatedProduct;
-                    }
-                  });
+                  // setState(() {
+                  //   final updatedProduct = ProductModel(
+                  //     id: product.id,
+                  //     name: nameController.text,
+                  //     price: double.parse(priceController.text),
+                  //     imageUrl: imageUrlController.text,
+                  //     description: product.description,
+                  //     category: product.category,
+                  //     stockQuantity: product.stockQuantity,
+                  //   );
+                  //   final index = products.indexWhere((p) => p.id == product.id);
+                  //   if (index != -1) {
+                  //     products[index] = updatedProduct;
+                  //   }
+                  // });
                   Navigator.of(context).pop();
                 }
               },

@@ -187,13 +187,13 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<void> autoLogin() async {
-    final prefs = await SharedPreferences.getInstance();
-    final email = prefs.getString('email');
-    final password = prefs.getString('password');
+  // Future<void> autoLogin() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final email = prefs.getString('email');
+  //   final password = prefs.getString('password');
 
-    if (email != null && password != null) {
-      await signIn(email: email, password: password, rememberMe: false);
-    }
-  }
+  //   if (email != null && password != null) {
+  //     await signIn(email: email, password: password, rememberMe: false);
+  //   }
+  // }
 }

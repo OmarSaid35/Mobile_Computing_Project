@@ -6,7 +6,6 @@ import 'package:scratch_ecommerce/screens/categories/categories_screen.dart';
 import 'package:scratch_ecommerce/screens/profile/profile_screen.dart';
 import 'package:scratch_ecommerce/screens/search/search_screen.dart';
 
-
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -17,6 +16,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
+  // List of screens with retained states
   final List<Widget> _screens = [
     const CategoriesScreen(),
     const SearchScreen(),
@@ -28,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('E-commerce App'),
+        title: Text(_getAppBarTitle()),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -38,7 +38,10 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: _screens[_selectedIndex],
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _screens,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (index) => setState(() => _selectedIndex = index),
@@ -63,5 +66,21 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
+  }
+
+  // Dynamically change AppBar title based on selected tab
+  String _getAppBarTitle() {
+    switch (_selectedIndex) {
+      case 0:
+        return 'Categories';
+      case 1:
+        return 'Search';
+      case 2:
+        return 'Your Cart';
+      case 3:
+        return 'Profile';
+      default:
+        return 'E-commerce App';
+    }
   }
 }
