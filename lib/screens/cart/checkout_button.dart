@@ -56,35 +56,57 @@ class CheckoutButton extends StatelessWidget {
   Future<void> _placeOrder(BuildContext context) async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
-
     final user = authProvider.user;
     final totalPrice = cartProvider.total;
     final now = DateTime.now();
 
-     if(user != null){
-        try{
-            await FirebaseFirestore.instance.collection('orders').add({
-               'username': user.name,
-                'time': now.toString(),
-               'totalPrice': totalPrice,
+    if(user != null){
+      try {
+
+        final orderData = {
+         'username': user.id,
+         'time': now.toString(),
+         'totalPrice': totalPrice,
+        };
+
+        // ignore: unused_local_variable
+        final orderRef = await FirebaseFirestore.instance.collection('orders').add(orderData);
+
+        //Update product quantities
+         final batch = FirebaseFirestore.instance.batch();
+         for(final cartItem in cartProvider.items){
+             final productRef =  FirebaseFirestore.instance.collection('product').doc(cartItem.product.id);
+
+            final newStockQuantity = cartItem.product.stockQuantity - cartItem.quantity;
+            final newSoldCount = cartItem.product.soldCount + cartItem.quantity;
+
+           batch.update(productRef, {
+              'quantity': newStockQuantity,
+              'sales': newSoldCount,
             });
-
-           ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Order placed successfully!'))
-             );
-
-             cartProvider.clear(); //clear the cart after order is placed
-
-        }catch(e){
-            ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Error placing order $e'))
-            );
         }
-      }
-    else{
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please log in to continue'))
+        
+
+       await batch.commit();
+
+       ScaffoldMessenger.of(context).showSnackBar(
+           const SnackBar(content: Text('Order placed successfully!'))
         );
-     }
+
+        cartProvider.clear(); //clear the cart after order is placed
+
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Error placing order $e'))
+          );
+        }
+
+    }
+    else{
+        ScaffoldMessenger.of(context).showSnackBar(
+             const SnackBar(content: Text('Please log in to continue'))
+        );
+    }
+
   }
 }
