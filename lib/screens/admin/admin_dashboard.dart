@@ -17,8 +17,8 @@ class AdminDashboard extends StatelessWidget {
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Overview'),
-              Tab(text: 'Products'),
               Tab(text: 'Orders'),
+              Tab(text: 'Products'),
               Tab(text: "Categories",),
             ],
           ),
@@ -26,8 +26,8 @@ class AdminDashboard extends StatelessWidget {
         body: TabBarView(
           children: [
             _buildOverviewTab(),
-            const ProductManagement(),
             const OrderManagement(),
+            const ProductManagement(),
             const CategoryManagement(),
           ],
         ),

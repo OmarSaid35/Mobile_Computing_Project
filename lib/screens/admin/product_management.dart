@@ -15,7 +15,7 @@ class _ProductManagementState extends State<ProductManagement> {
       name: 'Product 1',
       price: 4.0,
       description: 'Sample description 1',
-      category: 'Category 1',
+      category: 'Homeware',
       stockQuantity: 10,
       imageUrl: 'https://via.placeholder.com/150',
     ),
@@ -24,18 +24,25 @@ class _ProductManagementState extends State<ProductManagement> {
       name: 'Product 2',
       price: 40.0,
       description: 'Sample description 2',
-      category: 'Category 2',
+      category: 'Clothing',
       stockQuantity: 5,
       imageUrl: 'https://via.placeholder.com/150',
     ),
   ];
 
+  final List<String> categoriesList = ['Electronics', 'Clothing', 'Homeware'];
+  // String selectedCategory = "";
+
   void showAddProductDialog(BuildContext context) {
     final nameController = TextEditingController();
     final priceController = TextEditingController();
     final imageUrlController = TextEditingController();
-    final categoryController = TextEditingController();
+    // final categoryController = TextEditingController();
     final quantityController = TextEditingController();
+
+    // final List<String> categoriesList = ['Electronics', 'Clothing', 'Homeware'];
+    // ignore: unused_local_variable
+    String selectedCategory = "";
 
     showDialog(
       context: context,
@@ -49,9 +56,19 @@ class _ProductManagementState extends State<ProductManagement> {
                   controller: nameController,
                   decoration: const InputDecoration(labelText: 'Name'),
                 ),
-                TextField(
-                  controller: categoryController,
-                  decoration: const InputDecoration(labelText: 'Category'),
+                DropdownButtonFormField<String>(
+                  value: null, // No initial value
+                  hint: const Text('Category'),
+                  items: categoriesList.map((category) => DropdownMenuItem<String>(
+                    value: category,
+                    child: Text(category),
+                  )).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      
+                      selectedCategory = value!;
+                    });
+                  },
                 ),
                 TextField(
                   controller: quantityController,
@@ -77,7 +94,6 @@ class _ProductManagementState extends State<ProductManagement> {
             TextButton(
               onPressed: () {
                 if (nameController.text.isNotEmpty &&
-                    categoryController.text.isNotEmpty &&
                     double.tryParse(quantityController.text) != null &&
                     double.tryParse(priceController.text) != null &&
                     imageUrlController.text.isNotEmpty) {
@@ -89,7 +105,7 @@ class _ProductManagementState extends State<ProductManagement> {
                         price: double.parse(priceController.text),
                         imageUrl: imageUrlController.text,
                         description: '',
-                        category: categoryController.text,
+                        category: selectedCategory,
                         stockQuantity: int.parse(quantityController.text),
                       ),
                     );
@@ -109,8 +125,10 @@ class _ProductManagementState extends State<ProductManagement> {
     final nameController = TextEditingController(text: product.name);
     final priceController = TextEditingController(text: product.price.toString());
     final imageUrlController = TextEditingController(text: product.imageUrl);
-    final categoryController = TextEditingController(text: product.category);
     final quantityController = TextEditingController(text: product.stockQuantity.toString());
+
+    // ignore: unused_local_variable
+    String selectedCategory = product.category;
 
     showDialog(
       context: context,
@@ -124,9 +142,18 @@ class _ProductManagementState extends State<ProductManagement> {
                   controller: nameController,
                   decoration: const InputDecoration(labelText: 'Name'),
                 ),
-                TextField(
-                  controller: categoryController,
-                  decoration: const InputDecoration(labelText: 'Category'),
+                DropdownButtonFormField<String>(
+                  value: selectedCategory, // No initial value
+                  hint: const Text('Category'),
+                  items: categoriesList.map((category) => DropdownMenuItem<String>(
+                    value: category,
+                    child: Text(category),
+                  )).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedCategory = value!;
+                    });
+                  },
                 ),
                 TextField(
                   controller: quantityController,
@@ -161,7 +188,7 @@ class _ProductManagementState extends State<ProductManagement> {
                       price: double.parse(priceController.text),
                       imageUrl: imageUrlController.text,
                       description: product.description,
-                      category: categoryController.text,
+                      category: selectedCategory,
                       stockQuantity: int.parse(quantityController.text),
                     );
                     final index = products.indexWhere((p) => p.id == product.id);
