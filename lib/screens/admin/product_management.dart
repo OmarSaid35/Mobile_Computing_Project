@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:scratch_ecommerce/models/product_model.dart';
 
 class ProductManagement extends StatefulWidget {
@@ -9,56 +10,16 @@ class ProductManagement extends StatefulWidget {
 }
 
 class _ProductManagementState extends State<ProductManagement> {
-  final List<ProductModel> products = [
-    ProductModel(
-      id: '1',
-      name: 'Product 1',
-      price: 4.0,
-      category: 'Homeware',
-      stockQuantity: 10,
-      imageUrl: 'https://via.placeholder.com/150', soldCount: 0,
-    ),
-    ProductModel(
-      id: '2',
-      name: 'Product 2',
-      price: 40.0,
-      category: 'Clothing',
-      stockQuantity: 5,
-      imageUrl: 'https://via.placeholder.com/150', soldCount: 0,
-    ),
-    // ProductModel(
-    //   id: '1',
-    //   name: 'Product 1',
-    //   price: 4.0,
-    //   description: 'Sample description 1',
-    //   category: 'Category 1',
-    //   stockQuantity: 10,
-    //   imageUrl: 'https://via.placeholder.com/150',
-    // ),
-    // ProductModel(
-    //   id: '2',
-    //   name: 'Product 2',
-    //   price: 40.0,
-    //   description: 'Sample description 2',
-    //   category: 'Category 2',
-    //   stockQuantity: 5,
-    //   imageUrl: 'https://via.placeholder.com/150',
-    // ),
-  ];
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  final List<String> categoriesList = ['Electronics', 'Clothing', 'Homeware'];
-  // String selectedCategory = "";
-
-  void showAddProductDialog(BuildContext context) {
+  void showAddProductDialog(
+      BuildContext context, List<Map<String, String>> categories) {
     final nameController = TextEditingController();
     final priceController = TextEditingController();
     final imageUrlController = TextEditingController();
-    // final categoryController = TextEditingController();
     final quantityController = TextEditingController();
 
-    // final List<String> categoriesList = ['Electronics', 'Clothing', 'Homeware'];
-    // ignore: unused_local_variable
-    String selectedCategory = "";
+    String? selectedCategoryId;
 
     showDialog(
       context: context,
@@ -73,22 +34,24 @@ class _ProductManagementState extends State<ProductManagement> {
                   decoration: const InputDecoration(labelText: 'Name'),
                 ),
                 DropdownButtonFormField<String>(
-                  value: null, // No initial value
+                  value: selectedCategoryId,
                   hint: const Text('Category'),
-                  items: categoriesList.map((category) => DropdownMenuItem<String>(
-                    value: category,
-                    child: Text(category),
-                  )).toList(),
+                  items: categories
+                      .map((category) => DropdownMenuItem<String>(
+                            value: category['id'],
+                            child: Text(category['name']!),
+                          ))
+                      .toList(),
                   onChanged: (value) {
                     setState(() {
-                      
-                      selectedCategory = value!;
+                      selectedCategoryId = value;
                     });
                   },
                 ),
                 TextField(
                   controller: quantityController,
                   decoration: const InputDecoration(labelText: 'Quantity'),
+                  keyboardType: TextInputType.number,
                 ),
                 TextField(
                   controller: priceController,
@@ -108,22 +71,18 @@ class _ProductManagementState extends State<ProductManagement> {
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 if (nameController.text.isNotEmpty &&
-                    double.tryParse(quantityController.text) != null &&
+                    selectedCategoryId != null &&
                     double.tryParse(priceController.text) != null &&
+                    int.tryParse(quantityController.text) != null &&
                     imageUrlController.text.isNotEmpty) {
-                  setState(() {
-                    products.add(
-                      ProductModel(
-                        id: DateTime.now().toString(),
-                        name: nameController.text,
-                        price: double.parse(priceController.text),
-                        imageUrl: imageUrlController.text,
-                        category: selectedCategory,
-                        stockQuantity: int.parse(quantityController.text), soldCount: 0,
-                      ),
-                    );
+                  await _firestore.collection('product').add({
+                    'name': nameController.text,
+                    'categoryId': selectedCategoryId,
+                    'price': double.parse(priceController.text),
+                    'quantity': int.parse(quantityController.text),
+                    'picUrl': imageUrlController.text,
                   });
                   Navigator.of(context).pop();
                 }
@@ -136,15 +95,16 @@ class _ProductManagementState extends State<ProductManagement> {
     );
   }
 
-  void showEditProductDialog(BuildContext context, ProductModel product) {
+  void showEditProductDialog(BuildContext context, ProductModel product,
+      List<Map<String, String>> categories) {
     final nameController = TextEditingController(text: product.name);
     final priceController =
         TextEditingController(text: product.price.toString());
     final imageUrlController = TextEditingController(text: product.imageUrl);
-    final quantityController = TextEditingController(text: product.stockQuantity.toString());
+    final quantityController =
+        TextEditingController(text: product.stockQuantity.toString());
 
-    // ignore: unused_local_variable
-    String selectedCategory = product.category;
+    String? selectedCategoryId = product.category;
 
     showDialog(
       context: context,
@@ -159,21 +119,24 @@ class _ProductManagementState extends State<ProductManagement> {
                   decoration: const InputDecoration(labelText: 'Name'),
                 ),
                 DropdownButtonFormField<String>(
-                  value: selectedCategory, // No initial value
+                  value: selectedCategoryId,
                   hint: const Text('Category'),
-                  items: categoriesList.map((category) => DropdownMenuItem<String>(
-                    value: category,
-                    child: Text(category),
-                  )).toList(),
+                  items: categories
+                      .map((category) => DropdownMenuItem<String>(
+                            value: category['id'],
+                            child: Text(category['name']!),
+                          ))
+                      .toList(),
                   onChanged: (value) {
                     setState(() {
-                      selectedCategory = value!;
+                      selectedCategoryId = value;
                     });
                   },
                 ),
                 TextField(
                   controller: quantityController,
                   decoration: const InputDecoration(labelText: 'Quantity'),
+                  keyboardType: TextInputType.number,
                 ),
                 TextField(
                   controller: priceController,
@@ -193,23 +156,21 @@ class _ProductManagementState extends State<ProductManagement> {
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 if (nameController.text.isNotEmpty &&
+                    selectedCategoryId != null &&
                     double.tryParse(priceController.text) != null &&
+                    int.tryParse(quantityController.text) != null &&
                     imageUrlController.text.isNotEmpty) {
-                  setState(() {
-                    final updatedProduct = ProductModel(
-                      id: product.id,
-                      name: nameController.text,
-                      price: double.parse(priceController.text),
-                      imageUrl: imageUrlController.text,
-                      category: selectedCategory,
-                      stockQuantity: int.parse(quantityController.text), soldCount: 0,
-                    );
-                    final index = products.indexWhere((p) => p.id == product.id);
-                    if (index != -1) {
-                      products[index] = updatedProduct;
-                    }
+                  await _firestore
+                      .collection('product')
+                      .doc(product.id)
+                      .update({
+                    'name': nameController.text,
+                    'categoryId': selectedCategoryId,
+                    'price': double.parse(priceController.text),
+                    'quantity': int.parse(quantityController.text),
+                    'picUrl': imageUrlController.text,
                   });
                   Navigator.of(context).pop();
                 }
@@ -224,55 +185,97 @@ class _ProductManagementState extends State<ProductManagement> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: products.length + 1,
-      itemBuilder: (context, index) {
-        if (index == 0) {
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: ElevatedButton.icon(
-              onPressed: () => showAddProductDialog(context),
-              icon: const Icon(Icons.add),
-              label: const Text('Add Product'),
-            ),
-          );
+    return StreamBuilder<QuerySnapshot>(
+      stream: _firestore.collection('categories').snapshots(),
+      builder: (context, categoriesSnapshot) {
+        if (categoriesSnapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
         }
 
-        final product = products[index - 1];
+        final categories = categoriesSnapshot.data!.docs.map((doc) {
+          final data = doc.data() as Map<String, dynamic>;
+          return {
+            'id': data['id'].toString(), // Ensure 'id' is a String
+            'name': data['name'].toString(), // Ensure 'name' is a String
+          };
+        }).toList();
 
-        return ListTile(
-          leading: Image.network(
-            product.imageUrl,
-            width: 50,
-            height: 50,
-            fit: BoxFit.cover,
-          ),
-          title: Text(product.name),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Category: ${product.category}'),
-              Text('Stock Quantity: ${product.stockQuantity}'),
-              Text('Price: \$${product.price.toStringAsFixed(2)}'),
-            ],
-          ),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.edit),
-                onPressed: () => showEditProductDialog(context, product),
-              ),
-              IconButton(
-                icon: const Icon(Icons.delete),
-                onPressed: () {
-                  setState(() {
-                    products.remove(product);
-                  });
-                },
-              ),
-            ],
-          ),
+        return StreamBuilder<QuerySnapshot>(
+          stream: _firestore.collection('product').snapshots(),
+          builder: (context, productsSnapshot) {
+            if (productsSnapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            final products = productsSnapshot.data!.docs.map((doc) {
+              final data = doc.data() as Map<String, dynamic>;
+              return ProductModel(
+                id: doc.id,
+                name: data['name'],
+                price: data['price'],
+                category: data['categoryId'],
+                stockQuantity: data['quantity'],
+                imageUrl: data['picUrl'],
+                soldCount: data['soldCount'] ?? 0,
+              );
+            }).toList();
+
+            return ListView.builder(
+              itemCount: products.length + 1,
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  return Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: ElevatedButton.icon(
+                      onPressed: () =>
+                          showAddProductDialog(context, categories),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Add Product'),
+                    ),
+                  );
+                }
+
+                final product = products[index - 1];
+
+                return ListTile(
+                  leading: Image.network(
+                    product.imageUrl,
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                  ),
+                  title: Text(product.name),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Category ID: ${product.category}'),
+                      Text('Stock Quantity: ${product.stockQuantity}'),
+                      Text('Price: \$${product.price.toStringAsFixed(2)}'),
+                    ],
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () =>
+                            showEditProductDialog(context, product, categories),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () async {
+                          await _firestore
+                              .collection('product')
+                              .doc(product.id)
+                              .delete();
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
         );
       },
     );

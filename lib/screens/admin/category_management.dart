@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:scratch_ecommerce/models/category_model.dart';
+import 'package:uuid/uuid.dart';
 
 class CategoryManagement extends StatefulWidget {
   const CategoryManagement({super.key});
@@ -9,15 +11,11 @@ class CategoryManagement extends StatefulWidget {
 }
 
 class _CategoryManagementState extends State<CategoryManagement> {
-  final List<Category> categories = [
-    Category(id: '1',
-    name: "Books",
-    imageUrl: 'https://via.placeholder.com/150'),
-  ];
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final Uuid uuid = Uuid(); // Initialize UUID generator
 
   void showAddCategoryDialog(BuildContext context) {
     final nameController = TextEditingController();
-    final idController = TextEditingController();
     final imageUrlController = TextEditingController();
 
     showDialog(
@@ -28,10 +26,6 @@ class _CategoryManagementState extends State<CategoryManagement> {
           content: SingleChildScrollView(
             child: Column(
               children: [
-                TextField(
-                  controller: idController,
-                  decoration: const InputDecoration(labelText: 'ID'),
-                ),
                 TextField(
                   controller: nameController,
                   decoration: const InputDecoration(labelText: 'Name'),
@@ -49,18 +43,15 @@ class _CategoryManagementState extends State<CategoryManagement> {
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 if (nameController.text.isNotEmpty &&
-                    idController.text.isNotEmpty &&
                     imageUrlController.text.isNotEmpty) {
-                  setState(() {
-                    categories.add(
-                      Category(
-                        id: idController.text,
-                        name: nameController.text,
-                        imageUrl: imageUrlController.text,        
-                      ),
-                    );
+                  final randomId = uuid.v4(); // Generate random ID
+                  // Add category to Firestore
+                  await _firestore.collection('categories').doc(randomId).set({
+                    'id': randomId,
+                    'name': nameController.text,
+                    'picUrl': imageUrlController.text,
                   });
                   Navigator.of(context).pop();
                 }
@@ -74,7 +65,6 @@ class _CategoryManagementState extends State<CategoryManagement> {
   }
 
   void showEditCategoryDialog(BuildContext context, Category category) {
-    final idController = TextEditingController(text: category.id);
     final nameController = TextEditingController(text: category.name);
     final imageUrlController = TextEditingController(text: category.imageUrl);
 
@@ -86,10 +76,6 @@ class _CategoryManagementState extends State<CategoryManagement> {
           content: SingleChildScrollView(
             child: Column(
               children: [
-                TextField(
-                  controller: idController,
-                  decoration: const InputDecoration(labelText: 'ID'),
-                ),
                 TextField(
                   controller: nameController,
                   decoration: const InputDecoration(labelText: 'Name'),
@@ -107,20 +93,16 @@ class _CategoryManagementState extends State<CategoryManagement> {
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 if (nameController.text.isNotEmpty &&
-                    idController.text.isNotEmpty &&
                     imageUrlController.text.isNotEmpty) {
-                  setState(() {
-                    final updatedProduct = Category(
-                      id: idController.text,
-                      name: nameController.text,
-                      imageUrl: imageUrlController.text,
-                    );
-                    final index = categories.indexWhere((p) => p.id == category.id);
-                    if (index != -1) {
-                      categories[index] = updatedProduct;
-                    }
+                  // Update Firestore document
+                  await _firestore
+                      .collection('categories')
+                      .doc(category.id)
+                      .update({
+                    'name': nameController.text,
+                    'picUrl': imageUrlController.text,
                   });
                   Navigator.of(context).pop();
                 }
@@ -135,57 +117,69 @@ class _CategoryManagementState extends State<CategoryManagement> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: categories.length + 1,
-      itemBuilder: (context, index) {
-        if (index == 0) {
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: ElevatedButton.icon(
-              onPressed: () => showAddCategoryDialog(context),
-              icon: const Icon(Icons.add),
-              label: const Text('Add Category'),
-            ),
-          );
+    return StreamBuilder<QuerySnapshot>(
+      stream: _firestore.collection('categories').snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return const Center(child: Text('No categories found.'));
         }
 
-        final category = categories[index - 1];
+        // Map Firestore documents to Category objects
+        final categories = snapshot.data!.docs.map((doc) {
+          return Category.fromFirestore(
+              doc.data() as Map<String, dynamic>, doc.id);
+        }).toList();
 
-        return ListTile(
-          leading: Image.network(
-            category.imageUrl,
-            width: 50,
-            height: 50,
-            fit: BoxFit.cover,
-          ),
-          title: Text(category.name),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('ID: ${category.id}'),
-              //Text('Name: ${category.name}'),
-            ],
-          ),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.edit),
-                onPressed: () => showEditCategoryDialog(context, category),
+        return ListView.builder(
+          itemCount: categories.length + 1,
+          itemBuilder: (context, index) {
+            if (index == 0) {
+              return Padding(
+                padding: const EdgeInsets.all(16),
+                child: ElevatedButton.icon(
+                  onPressed: () => showAddCategoryDialog(context),
+                  icon: const Icon(Icons.add),
+                  label: const Text('Add Category'),
+                ),
+              );
+            }
+
+            final category = categories[index - 1];
+
+            return ListTile(
+              leading: Image.network(
+                category.imageUrl,
+                width: 50,
+                height: 50,
+                fit: BoxFit.cover,
               ),
-              IconButton(
-                icon: const Icon(Icons.delete),
-                onPressed: () {
-                  setState(() {
-                    categories.remove(category);
-                  });
-                },
+              title: Text(category.name),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.edit),
+                    onPressed: () => showEditCategoryDialog(context, category),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () async {
+                      // Delete category from Firestore
+                      await _firestore
+                          .collection('categories')
+                          .doc(category.id)
+                          .delete();
+                    },
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
   }
-
 }
