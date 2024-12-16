@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scratch_ecommerce/providers/auth_provider.dart';
-import 'signup_screen.dart';
 
+import 'package:scratch_ecommerce/screens/auth/signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
