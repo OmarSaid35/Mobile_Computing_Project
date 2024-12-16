@@ -12,40 +12,38 @@ class AuthProvider with ChangeNotifier {
   UserModel? get user => _user;
 
   // Sign-up method using Firebase Authentication and Firestore
+
   Future<void> signUp({
     required String email,
     required String password,
     required String name,
     required DateTime birthDate,
+    required String schoolName, // Add this parameter
   }) async {
     try {
-      // Create user with Firebase Authentication
+      // Create a new user with FirebaseAuth
       UserCredential userCredential =
           await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      // Get the user ID from Firebase Auth
+      // Get the user ID from FirebaseAuth
       String userId = userCredential.user!.uid;
 
-      // Create a UserModel object
-      final UserModel newUser = UserModel(
-        id: userId,
-        email: email,
-        name: name,
-        birthDate: birthDate,
-        isAdmin: false, // Default isAdmin as false, can be updated later
-      );
+      // Store additional user information (like name, birthDate, schoolName, id, and isAdmin)
+      await FirebaseFirestore.instance.collection('users').doc(userId).set({
+        'id': userId, // Store the user ID in Firestore
+        'email': email,
+        'name': name,
+        'birthDate': birthDate.toIso8601String(),
+        'schoolName': schoolName, // Store the schoolName in Firestore
+        'isAdmin': false, // Store isAdmin field (default value is false)
+      });
 
-      // Save the user's data to Firestore
-      await _firestore.collection('users').doc(userId).set(newUser.toJson());
-
-      // Set the current user
-      _user = newUser;
       notifyListeners();
-    } on FirebaseAuthException catch (e) {
-      throw _handleAuthError(e);
+    } catch (e) {
+      throw e; // Handle errors (e.g., email already in use, weak password)
     }
   }
 
@@ -79,6 +77,7 @@ class AuthProvider with ChangeNotifier {
           name: "Default Name", // Placeholder
           birthDate: DateTime.now(), // Placeholder
           isAdmin: false,
+          schoolName: "Default School", // Add default school name here
         );
         await _firestore.collection('users').doc(userId).set(newUser.toJson());
         _user = newUser;
@@ -155,11 +154,46 @@ class AuthProvider with ChangeNotifier {
   }
 
   // Reset password functionality (can be implemented later)
-  Future<void> resetPassword(String email) async {
+  Future<void> resetPassword({
+    required String email,
+    required String newPassword,
+  }) async {
     try {
-      await _auth.sendPasswordResetEmail(email: email);
-    } on FirebaseAuthException catch (e) {
-      throw _handleAuthError(e);
+      // First, reauthenticate the user to update their password.
+      User? user = FirebaseAuth.instance.currentUser;
+
+      if (user == null) {
+        throw 'No user is currently signed in.';
+      }
+
+      // Update password in Firebase Authentication
+      await user.updatePassword(newPassword);
+
+      // After updating the password in Firebase, we need to update it in Firestore
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .update({
+        'password':
+            newPassword, // You can either store the hashed password or use another secure method.
+      });
+
+      // Optional: Notify the user of success
+      print('Password updated successfully.');
+
+      // After password update, you can re-authenticate if needed (e.g., to refresh the session)
+    } catch (e) {
+      throw 'Failed to update password: $e';
     }
   }
+
+  // Future<void> autoLogin() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final email = prefs.getString('email');
+  //   final password = prefs.getString('password');
+
+  //   if (email != null && password != null) {
+  //     await signIn(email: email, password: password, rememberMe: false);
+  //   }
+  // }
 }

@@ -1,82 +1,81 @@
 import 'package:flutter/material.dart';
-import 'package:scratch_ecommerce/models/product_model.dart';
-import 'product_card.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProductGrid extends StatelessWidget {
+  final String searchQuery;
   final String? categoryId;
-  final String? searchQuery;
 
   const ProductGrid({
     super.key,
+    required this.searchQuery,
     this.categoryId,
-    this.searchQuery,
   });
-
-  // Static product list for testing
-  static final List<ProductModel> staticProducts = [
-    ProductModel(
-      id: '1',
-      name: 'Product A',
-      description: 'Description for Product A',
-      price: 29.99,
-      category: 'Category1',
-      stockQuantity: 10,
-      imageUrl: 'https://via.placeholder.com/150',
-      rating: 4.5,
-      soldCount: 25,
-    ),
-    ProductModel(
-      id: '2',
-      name: 'Product B',
-      description: 'Description for Product B',
-      price: 49.99,
-      category: 'Category2',
-      stockQuantity: 5,
-      imageUrl: 'https://via.placeholder.com/150',
-      rating: 3.8,
-      soldCount: 15,
-    ),
-    ProductModel(
-      id: '3',
-      name: 'Product C',
-      description: 'Description for Product C',
-      price: 19.99,
-      category: 'Category1',
-      stockQuantity: 8,
-      imageUrl: 'https://via.placeholder.com/150',
-      rating: 4.0,
-      soldCount: 30,
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
-    // Filter products based on categoryId and searchQuery
-    List<ProductModel> filteredProducts = staticProducts.where((product) {
-      final matchesCategory =
-          categoryId == null || product.category == categoryId;
-      final matchesSearch = searchQuery == null ||
-          product.name.toLowerCase().contains(searchQuery!.toLowerCase());
-      return matchesCategory && matchesSearch;
-    }).toList();
+    // Construct Firestore query based on searchQuery and categoryId
+    Query<Map<String, dynamic>> query =
+        FirebaseFirestore.instance.collection('product');
 
-    if (filteredProducts.isEmpty) {
-      return const Center(
-        child: Text('No products found'),
-      );
+    if (categoryId != null && categoryId!.isNotEmpty) {
+      query = query.where('categoryId', isEqualTo: categoryId);
+    }
+    if (searchQuery.isNotEmpty) {
+      query = query.where('name', isGreaterThanOrEqualTo: searchQuery).where(
+            'name',
+            isLessThanOrEqualTo: '$searchQuery\uf8ff',
+          );
     }
 
-    return GridView.builder(
-      padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 0.7,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-      ),
-      itemCount: filteredProducts.length,
-      itemBuilder: (context, index) {
-        return ProductCard(product: filteredProducts[index]);
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+      stream: query.snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return const Center(child: Text('No products found.'));
+        }
+
+        final products = snapshot.data!.docs;
+
+        return GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 8,
+            mainAxisSpacing: 8,
+            childAspectRatio: 0.75,
+          ),
+          itemCount: products.length,
+          itemBuilder: (context, index) {
+            final product = products[index].data();
+            return Card(
+              elevation: 4,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: Image.network(
+                      product['picUrl'],
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      product['name'],
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
       },
     );
   }

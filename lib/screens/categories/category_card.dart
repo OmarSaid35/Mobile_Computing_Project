@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 
 class CategoryCard extends StatelessWidget {
   final String name;
-  final String imageUrl;
+  final String picUrl; // Image URL for the category
   final VoidCallback onTap;
 
   const CategoryCard({
     super.key,
     required this.name,
-    required this.imageUrl,
+    required this.picUrl,
     required this.onTap,
   });
 
@@ -26,11 +26,12 @@ class CategoryCard extends StatelessWidget {
           children: [
             Expanded(
               child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                child: Image.network(
-                  imageUrl,
-                  fit: BoxFit.cover,
-                ),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(12)),
+                child: picUrl.isNotEmpty
+                    ? Image.network(picUrl, fit: BoxFit.cover)
+                    : const Icon(Icons
+                        .image_not_supported), // Display a default icon if the image URL is empty
               ),
             ),
             Padding(

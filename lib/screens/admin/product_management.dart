@@ -14,20 +14,36 @@ class _ProductManagementState extends State<ProductManagement> {
       id: '1',
       name: 'Product 1',
       price: 4.0,
-      description: 'Sample description 1',
       category: 'Homeware',
       stockQuantity: 10,
-      imageUrl: 'https://via.placeholder.com/150',
+      imageUrl: 'https://via.placeholder.com/150', soldCount: 0,
     ),
     ProductModel(
       id: '2',
       name: 'Product 2',
       price: 40.0,
-      description: 'Sample description 2',
       category: 'Clothing',
       stockQuantity: 5,
-      imageUrl: 'https://via.placeholder.com/150',
+      imageUrl: 'https://via.placeholder.com/150', soldCount: 0,
     ),
+    // ProductModel(
+    //   id: '1',
+    //   name: 'Product 1',
+    //   price: 4.0,
+    //   description: 'Sample description 1',
+    //   category: 'Category 1',
+    //   stockQuantity: 10,
+    //   imageUrl: 'https://via.placeholder.com/150',
+    // ),
+    // ProductModel(
+    //   id: '2',
+    //   name: 'Product 2',
+    //   price: 40.0,
+    //   description: 'Sample description 2',
+    //   category: 'Category 2',
+    //   stockQuantity: 5,
+    //   imageUrl: 'https://via.placeholder.com/150',
+    // ),
   ];
 
   final List<String> categoriesList = ['Electronics', 'Clothing', 'Homeware'];
@@ -104,9 +120,8 @@ class _ProductManagementState extends State<ProductManagement> {
                         name: nameController.text,
                         price: double.parse(priceController.text),
                         imageUrl: imageUrlController.text,
-                        description: '',
                         category: selectedCategory,
-                        stockQuantity: int.parse(quantityController.text),
+                        stockQuantity: int.parse(quantityController.text), soldCount: 0,
                       ),
                     );
                   });
@@ -123,7 +138,8 @@ class _ProductManagementState extends State<ProductManagement> {
 
   void showEditProductDialog(BuildContext context, ProductModel product) {
     final nameController = TextEditingController(text: product.name);
-    final priceController = TextEditingController(text: product.price.toString());
+    final priceController =
+        TextEditingController(text: product.price.toString());
     final imageUrlController = TextEditingController(text: product.imageUrl);
     final quantityController = TextEditingController(text: product.stockQuantity.toString());
 
@@ -187,9 +203,8 @@ class _ProductManagementState extends State<ProductManagement> {
                       name: nameController.text,
                       price: double.parse(priceController.text),
                       imageUrl: imageUrlController.text,
-                      description: product.description,
                       category: selectedCategory,
-                      stockQuantity: int.parse(quantityController.text),
+                      stockQuantity: int.parse(quantityController.text), soldCount: 0,
                     );
                     final index = products.indexWhere((p) => p.id == product.id);
                     if (index != -1) {
