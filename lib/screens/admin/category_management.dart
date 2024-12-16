@@ -167,11 +167,62 @@ class _CategoryManagementState extends State<CategoryManagement> {
                   IconButton(
                     icon: const Icon(Icons.delete),
                     onPressed: () async {
-                      // Delete category from Firestore
-                      await _firestore
-                          .collection('categories')
-                          .doc(category.id)
-                          .delete();
+                      final confirmation = await showDialog<bool>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Delete Category'),
+                          content: const Text(
+                            'Are you sure you want to delete this category and all its associated products?',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              child: const Text('Delete'),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      if (confirmation == true) {
+                        try {
+                          // Start a batch write for atomicity
+                          WriteBatch batch = _firestore.batch();
+
+                          // Fetch all products with the same category
+                          final productsSnapshot = await _firestore
+                              .collection('product')
+                              .where('categoryId', isEqualTo: category.id)
+                              .get();
+
+                          for (final doc in productsSnapshot.docs) {
+                            batch.delete(doc
+                                .reference); // Add product deletion to the batch
+                          }
+
+                          // Delete the category
+                          final categoryRef = _firestore
+                              .collection('categories')
+                              .doc(category.id);
+                          batch.delete(categoryRef);
+
+                          // Commit the batch
+                          await batch.commit();
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Category and products deleted')),
+                          );
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text('Error deleting category: $e')),
+                          );
+                        }
+                      }
                     },
                   ),
                 ],
