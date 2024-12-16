@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scratch_ecommerce/providers/auth_provider.dart';
 import 'package:scratch_ecommerce/screens/cart/cart_screen.dart';
-import 'package:scratch_ecommerce/screens/categories/categories_screen.dart';
 import 'package:scratch_ecommerce/screens/profile/profile_screen.dart';
 import 'package:scratch_ecommerce/screens/search/search_screen.dart';
 
@@ -18,7 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // List of screens with retained states
   final List<Widget> _screens = [
-    const CategoriesScreen(),
+    // const CategoriesScreen(),
     const SearchScreen(),
     const CartScreen(),
     const ProfileScreen(),
@@ -48,10 +47,6 @@ class _HomeScreenState extends State<HomeScreen> {
         type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.category),
-            label: 'Categories',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.search),
             label: 'Search',
           ),
@@ -72,12 +67,10 @@ class _HomeScreenState extends State<HomeScreen> {
   String _getAppBarTitle() {
     switch (_selectedIndex) {
       case 0:
-        return 'Categories';
-      case 1:
         return 'Search';
-      case 2:
+      case 1:
         return 'Your Cart';
-      case 3:
+      case 2:
         return 'Profile';
       default:
         return 'E-commerce App';

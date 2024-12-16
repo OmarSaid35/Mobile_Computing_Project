@@ -2,26 +2,57 @@ import 'package:flutter/material.dart';
 import 'package:scratch_ecommerce/screens/search/barcode_scanner_button.dart';
 import 'package:scratch_ecommerce/screens/search/voice_search_button.dart';
 import 'package:scratch_ecommerce/widgets/product_grid.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SearchScreen extends StatefulWidget {
-  final String? categoryId; // Accept categoryId as an optional parameter
-
-  const SearchScreen({super.key, this.categoryId});
+  const SearchScreen({super.key});
 
   @override
   State<SearchScreen> createState() => _SearchScreenState();
 }
 
 class _SearchScreenState extends State<SearchScreen> {
+  static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final _searchController = TextEditingController();
   String _searchQuery = '';
+  String? _selectedCategory;
+  List<Map<String, dynamic>> _categories = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    if (widget.categoryId != null) {
-      // Use categoryId as the initial filter if provided
-      _searchQuery = widget.categoryId!;
+    _fetchCategories();
+  }
+
+  Future<void> _fetchCategories() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final snapshot = await _firestore.collection('categories').get();
+      if (snapshot.docs.isNotEmpty) {
+        final List<Map<String, dynamic>> categories = snapshot.docs
+            .map((doc) => {'id': doc.get('id'), 'name': doc.data()['name']})
+            .toList();
+
+        categories.insert(0, {'id': 'All', 'name': 'All'});
+
+        setState(() {
+          _categories = categories;
+          _selectedCategory = categories[0]['id'];
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error fetching categories: $e');
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -39,8 +70,19 @@ class _SearchScreenState extends State<SearchScreen> {
     });
   }
 
+  void _handleCategoryChange(String? value) {
+    setState(() {
+      _selectedCategory = value;
+    });
+     print("Selected category id: $value");
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Scaffold(
       body: Column(
         children: [
@@ -48,6 +90,20 @@ class _SearchScreenState extends State<SearchScreen> {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
+                Expanded(
+                  child: DropdownButtonFormField<String>(
+                    value: _selectedCategory,
+                    hint: const Text('Select Category'),
+                    items: _categories
+                        .map((category) => DropdownMenuItem<String>(
+                              value: category['id'],
+                              child: Text(category['name'] ?? ''),
+                            ))
+                        .toList(),
+                    onChanged: _handleCategoryChange,
+                  ),
+                ),
+                const SizedBox(width: 8),
                 Expanded(
                   child: TextField(
                     controller: _searchController,
@@ -68,7 +124,7 @@ class _SearchScreenState extends State<SearchScreen> {
           Expanded(
             child: ProductGrid(
               searchQuery: _searchQuery,
-              categoryId: widget.categoryId, // Pass categoryId to ProductGrid
+              categoryId: _selectedCategory,
             ),
           ),
         ],
