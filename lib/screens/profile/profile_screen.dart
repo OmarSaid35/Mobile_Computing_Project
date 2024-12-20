@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scratch_ecommerce/providers/auth_provider.dart';
+import 'package:scratch_ecommerce/providers/theme_provider.dart';
 import 'package:scratch_ecommerce/screens/auth/login_screen.dart';
 import 'package:scratch_ecommerce/screens/admin/admin_dashboard.dart';
 import 'package:scratch_ecommerce/screens/profile/profile_menu_item.dart';
@@ -71,6 +72,13 @@ class ProfileScreen extends StatelessWidget {
             title: 'Delivery Addresses',
             onTap: () {
               // Navigate to addresses screen
+            },
+          ),
+           ProfileMenuItem(
+            icon: Icons.lightbulb,
+            title: 'Dark Theme',
+            onTap: () {
+                Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
             },
           ),
           ProfileMenuItem(
