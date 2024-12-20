@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scratch_ecommerce/providers/auth_provider.dart';
-
 import 'package:scratch_ecommerce/screens/auth/signup_screen.dart';
-//import 'package:scratch_ecommerce/screens/admin/admin_dashboard.dart';
-//import 'package:scratch_ecommerce/screens/home_screen.dart';
 import 'package:scratch_ecommerce/screens/auth/forget_password.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -20,7 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   bool _rememberMe =
-      false; // Variable to track the "Remember Me" checkbox state
+      false; 
 
 
 
@@ -85,7 +82,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 },
                 child: const Text('Create an account'),
               ),
-              // In LoginScreen, add a button for forget password
               TextButton(
                 onPressed: () {
                   Navigator.push(

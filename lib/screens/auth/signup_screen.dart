@@ -129,13 +129,13 @@ class _SignupScreenState extends State<SignupScreen> {
       setState(() => _isLoading = true);
       try {
         final birthDate = _selectedDate!;
-        final schoolName = _schoolNameController.text; // Get school name
+        final schoolName = _schoolNameController.text;
         await Provider.of<AuthProvider>(context, listen: false).signUp(
           email: _emailController.text,
           password: _passwordController.text,
           name: _nameController.text,
           birthDate: birthDate,
-          schoolName: schoolName, // Pass school name to signUp
+          schoolName: schoolName,
         );
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Signup successful!')),

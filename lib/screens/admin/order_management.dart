@@ -74,6 +74,9 @@ class _OrderManagementState extends State<OrderManagement> {
                     Text('Order Time: ${orderData['time']}'),
                     Text(
                         'Price: \$${orderData['totalPrice'].toStringAsFixed(2)}'),
+                    if (orderData['feedback'] != null &&
+                        orderData['feedback'].isNotEmpty)
+                      Text('Feedback: ${orderData['feedback']}'),
                   ],
                 ),
               ),

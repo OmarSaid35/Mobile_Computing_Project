@@ -1,9 +1,7 @@
-import 'package:flutter/material.dart'; // For the UI components (e.g., Scaffold, TextFormField, etc.)
-//import 'package:provider/provider.dart'; // For state management with Provider
-//import 'package:scratch_ecommerce/providers/auth_provider.dart'; // Your custom AuthProvider for handling authentication
-import 'package:firebase_auth/firebase_auth.dart'; // Firebase Auth for managing password reset
+import 'package:flutter/material.dart'; 
+import 'package:firebase_auth/firebase_auth.dart'; 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:scratch_ecommerce/models/user_model.dart'; // Assuming UserModel is imported
+import 'package:scratch_ecommerce/models/user_model.dart';
 
 class ForgetPasswordScreen extends StatefulWidget {
   const ForgetPasswordScreen({super.key});
