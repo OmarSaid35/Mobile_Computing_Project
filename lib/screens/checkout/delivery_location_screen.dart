@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:scratch_ecommerce/widgets/error_message.dart';
 import 'package:scratch_ecommerce/widgets/loading_indicator.dart';
-
 
 class DeliveryLocationScreen extends StatefulWidget {
   const DeliveryLocationScreen({super.key});
@@ -13,7 +13,6 @@ class DeliveryLocationScreen extends StatefulWidget {
 }
 
 class _DeliveryLocationScreenState extends State<DeliveryLocationScreen> {
-  GoogleMapController? _mapController;
   Position? _currentPosition;
   bool _loading = true;
   String? _error;
@@ -43,13 +42,6 @@ class _DeliveryLocationScreenState extends State<DeliveryLocationScreen> {
         _currentPosition = position;
         _loading = false;
       });
-
-      _mapController?.animateCamera(
-        CameraUpdate.newLatLngZoom(
-          LatLng(position.latitude, position.longitude),
-          15,
-        ),
-      );
     } catch (e) {
       setState(() {
         _loading = false;
@@ -81,31 +73,36 @@ class _DeliveryLocationScreenState extends State<DeliveryLocationScreen> {
       ),
       body: Stack(
         children: [
-          GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: LatLng(
+          FlutterMap(
+            options: MapOptions(
+              center: LatLng(
                 _currentPosition?.latitude ?? 0,
                 _currentPosition?.longitude ?? 0,
               ),
-              zoom: 15,
+              zoom: 15.0,
             ),
-            onMapCreated: (controller) => _mapController = controller,
-            myLocationEnabled: true,
-            myLocationButtonEnabled: true,
-            markers: _currentPosition == null
-                ? {}
-                : {
+            children: [
+              TileLayer(
+                urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                subdomains: ['a', 'b', 'c'],
+              ),
+              if (_currentPosition != null)
+                MarkerLayer(
+                  markers: [
                     Marker(
-                      markerId: const MarkerId('current'),
-                      position: LatLng(
+                      point: LatLng(
                         _currentPosition!.latitude,
                         _currentPosition!.longitude,
                       ),
-                      infoWindow: const InfoWindow(
-                        title: 'Delivery Location',
+                      builder: (ctx) => const Icon(
+                        Icons.location_on,
+                        color: Colors.red,
+                        size: 40,
                       ),
                     ),
-                  },
+                  ],
+                ),
+            ],
           ),
           Positioned(
             left: 16,
