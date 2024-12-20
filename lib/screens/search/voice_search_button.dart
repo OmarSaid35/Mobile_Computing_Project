@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+// import 'package:flutter/foundation.dart' show kIsWeb;
 
 class VoiceSearchButton extends StatefulWidget {
   final Function(String) onVoiceSearch; // Callback to pass search query
@@ -29,21 +29,21 @@ class _VoiceSearchButtonState extends State<VoiceSearchButton> {
   }
 
   Future<void> _startListening() async {
-    if (kIsWeb) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  'Voice search is not supported on web. Please use a mobile device')
-          )
-      );
-      return;
-    }
+    // if (kIsWeb) {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //       SnackBar(
+    //           content: Text(
+    //               'Voice search is not supported on web. Please use a mobile device')
+    //       )
+    //   );
+    //   return;
+    // }
 
     await _speechToText.listen(
       onResult: _onSpeechResult,
     );
     setState(() {
-      _lastWords = ''; // reset last words
+      _lastWords = '';
     });
   }
 
@@ -51,7 +51,7 @@ class _VoiceSearchButtonState extends State<VoiceSearchButton> {
     await _speechToText.stop();
     setState(() {});
     if (_lastWords.isNotEmpty) {
-      widget.onVoiceSearch(_lastWords); // pass the result to parent
+      widget.onVoiceSearch(_lastWords);
     }
   }
 
