@@ -17,7 +17,7 @@ class _OrderManagementState extends State<OrderManagement> {
       stream: _firestore.collection("orders").snapshots(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          return const Center(child: Text('Something went wrong'));
+          return const Center(child: Text('Something went wrong here'));
         }
 
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -35,7 +35,6 @@ class _OrderManagementState extends State<OrderManagement> {
         return ListView.builder(
           itemCount: orders.length,
           itemBuilder: (context, index) {
-            // Access order data directly from the snapshot
             final orderData = orders[index].data() as Map<String, dynamic>;
             return Card(
               margin: const EdgeInsets.symmetric(
