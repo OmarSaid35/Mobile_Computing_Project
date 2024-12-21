@@ -86,41 +86,45 @@ class _SearchScreenState extends State<SearchScreen> {
     return Scaffold(
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: DropdownButtonFormField<String>(
-                    value: _selectedCategory,
-                    hint: const Text('Select Category'),
-                    items: _categories
-                        .map((category) => DropdownMenuItem<String>(
-                              value: category['id'],
-                              child: Text(category['name'] ?? ''),
-                            ))
-                        .toList(),
-                    onChanged: _handleCategoryChange,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: const InputDecoration(
-                      hintText: 'Search products...',
-                      border: OutlineInputBorder(),
+         Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              DropdownButtonFormField<String>(
+                value: _selectedCategory,
+                hint: const Text('Select Category'),
+                items: _categories
+                    .map((category) => DropdownMenuItem<String>(
+                          value: category['id'],
+                          child: Text(category['name'] ?? ''),
+                        ))
+                    .toList(),
+                onChanged: _handleCategoryChange,
+              ),
+              const SizedBox(height: 16), 
+  
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        decoration: const InputDecoration(
+                          hintText: 'Search products...',
+                          border: OutlineInputBorder(),
+                        ),
+                        onChanged: (value) => setState(() => _searchQuery = value),
+                      ),
                     ),
-                    onChanged: (value) => setState(() => _searchQuery = value),
-                  ),
+                    const SizedBox(width: 8),
+                    VoiceSearchButton(onVoiceSearch: _handleVoiceSearch),
+                    const SizedBox(width: 8),
+                    BarcodeScannerButton(onBarcodeScanned: _handleBarcodeScan),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(width: 8),
-                VoiceSearchButton(onVoiceSearch: _handleVoiceSearch),
-                const SizedBox(width: 8),
-                BarcodeScannerButton(onBarcodeScanned: _handleBarcodeScan),
-              ],
-            ),
-          ),
           Expanded(
             child: ProductGrid(
               searchQuery: _searchQuery,
