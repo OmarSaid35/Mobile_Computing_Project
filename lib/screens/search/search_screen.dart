@@ -122,8 +122,8 @@ class _SearchScreenState extends State<SearchScreen> {
                     BarcodeScannerButton(onBarcodeScanned: _handleBarcodeScan),
                         ],
                       ),
-                    ],
-                  ),
+                ],
+                ),
                 ),
           Expanded(
             child: ProductGrid(
