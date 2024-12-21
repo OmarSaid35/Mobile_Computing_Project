@@ -12,6 +12,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<AuthProvider>(context).user;
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     if (user == null) {
       // Redirect to login screen
@@ -23,6 +24,7 @@ class ProfileScreen extends StatelessWidget {
       });
       return const SizedBox(); // Prevent build rendering
     }
+        final textColor = themeProvider.themeMode == ThemeMode.dark ? Colors.white : Colors.black;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -33,23 +35,25 @@ class ProfileScreen extends StatelessWidget {
             child: Icon(Icons.person, size: 50),
           ),
           const SizedBox(height: 16),
-          Text(
-            user.name,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
+           Text(
+              user.name,
+                style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                    color: textColor
+              ),
             ),
-          ),
-          Text(
-            user.email,
-            style: const TextStyle(
-              color: Colors.grey,
+             Text(
+              user.email,
+              style: TextStyle(
+                color: Colors.grey,
+              ),
             ),
-          ),
           const SizedBox(height: 32),
           ProfileMenuItem(
             icon: Icons.shopping_bag,
             title: 'My Orders',
+            textColor: textColor,
             onTap: () {
               // Navigate to orders screen
             },
@@ -58,6 +62,7 @@ class ProfileScreen extends StatelessWidget {
             ProfileMenuItem(
               icon: Icons.admin_panel_settings,
               title: 'Admin Dashboard',
+                textColor: textColor,
               onTap: () {
                 Navigator.push(
                   context,
@@ -70,20 +75,23 @@ class ProfileScreen extends StatelessWidget {
           ProfileMenuItem(
             icon: Icons.location_on,
             title: 'Delivery Addresses',
+              textColor: textColor,
             onTap: () {
               // Navigate to addresses screen
             },
           ),
-           ProfileMenuItem(
+          ProfileMenuItem(
             icon: Icons.lightbulb,
             title: 'Dark Theme',
+            textColor: textColor,
             onTap: () {
-                Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
+              Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
             },
           ),
           ProfileMenuItem(
             icon: Icons.settings,
             title: 'Settings',
+            textColor: textColor,
             onTap: () {
               // Navigate to settings screen
             },
@@ -91,6 +99,7 @@ class ProfileScreen extends StatelessWidget {
           ProfileMenuItem(
             icon: Icons.help,
             title: 'Help & Support',
+            textColor: textColor,
             onTap: () {
               // Navigate to help screen
             },
@@ -107,7 +116,7 @@ class ProfileScreen extends StatelessWidget {
                 vertical: 12,
               ),
             ),
-            child: const Text('Sign Out',style: TextStyle(color: Colors.white),),
+            child: const Text('Sign Out', style: TextStyle(color: Colors.white),),
           ),
         ],
       ),

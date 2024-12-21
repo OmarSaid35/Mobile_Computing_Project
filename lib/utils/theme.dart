@@ -25,20 +25,20 @@ class AppTheme {
           vertical: 12,
         ),
       ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 24,
-            vertical: 12,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.black,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: 12,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
         ),
-      ),
     );
   }
-
 
   static ThemeData get darkTheme {
     return ThemeData(
@@ -65,22 +65,23 @@ class AppTheme {
           vertical: 12,
         ),
       ),
-         elevatedButtonTheme: ElevatedButtonThemeData(
+      elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
             foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(
-            horizontal: 24,
-            vertical: 12,
+            backgroundColor: Colors.grey[700],
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24,
+              vertical: 12,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
       ),
        iconTheme: const IconThemeData(
           color: Colors.white, // Change the icon color to white
         ),
-        textTheme: const TextTheme(
+         textTheme: const TextTheme(
           bodyMedium: TextStyle(color: Colors.white)
         ),
     );

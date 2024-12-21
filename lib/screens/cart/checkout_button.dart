@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:scratch_ecommerce/providers/auth_provider.dart';
 import 'package:scratch_ecommerce/providers/cart_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:scratch_ecommerce/providers/theme_provider.dart';
 
 class CheckoutButton extends StatelessWidget {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -12,6 +13,7 @@ class CheckoutButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return ElevatedButton(
       onPressed: () async {
         // Attempt to get location. If it fails, we proceed to order checkout without location information
@@ -51,7 +53,7 @@ class CheckoutButton extends StatelessWidget {
       ),
       child: const Text(
         'Proceed to Checkout',
-        style: TextStyle(fontSize: 16),
+         style: TextStyle(fontSize: 16),
       ),
     );
   }
@@ -65,41 +67,38 @@ class CheckoutButton extends StatelessWidget {
 
     if (user != null) {
       try {
-        String? feedback = await showDialog<String>(
-          context: context,
-          builder: (context) {
-            final feedbackController = TextEditingController();
-            return AlertDialog(
-              title: const Text('Order Feedback'),
-              content: TextField(
-                controller: feedbackController,
-                decoration: const InputDecoration(
-                  labelText: 'Your feedback (optional)',
-                ),
-                maxLines: 3,
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(null),
-                  child: const Text('Skip'),
-                ),
-                TextButton(
-                  onPressed: () =>
-                      Navigator.of(context).pop(feedbackController.text),
-                  child: const Text('Submit'),
-                ),
-              ],
-            );
-          },
-        );
+        // Check stock availability before proceeding
+        for (final cartItem in cartProvider.items) {
+          String productId = cartItem.product.id;
+          DocumentSnapshot productDoc =
+              await _firestore.collection('product').doc(productId).get();
 
-        // Proceed with the transaction
+          if (productDoc.exists) {
+            final productData = productDoc.data() as Map<String, dynamic>;
+            final stockQuantity = productData['quantity'] ?? 0;
+
+            if (cartItem.quantity > stockQuantity) {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text(
+                    'Not enough stock for "${cartItem.product.name}". Available: $stockQuantity, Requested: ${cartItem.quantity}'),
+              ));
+              return; // Exit the function without placing the order
+            }
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(
+                  'Product "${cartItem.product.name}" does not exist in the inventory.'),
+            ));
+            return; // Exit the function without placing the order
+          }
+        }
+
+        // Proceed with the transaction if all quantities are valid
         await FirebaseFirestore.instance.runTransaction((transaction) async {
           final orderData = {
             'username': user.name,
-            'time': now.toIso8601String(),
+            'time': now.toString(),
             'totalPrice': totalPrice,
-            'feedback': feedback ?? '', // Save feedback
           };
           await FirebaseFirestore.instance.collection('orders').add(orderData);
 

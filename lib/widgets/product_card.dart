@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scratch_ecommerce/models/product_model.dart';
 import 'package:scratch_ecommerce/providers/cart_provider.dart';
-
+import 'package:scratch_ecommerce/providers/theme_provider.dart';
 
 class ProductCard extends StatelessWidget {
   final ProductModel product;
@@ -14,6 +14,7 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,7 +62,7 @@ class ProductCard extends StatelessWidget {
                         ),
                       );
                     },
-                    child: const Text('Add to Cart'),
+                     child: const Text('Add to Cart'),
                   ),
                 ),
               ],
