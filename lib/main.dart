@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scratch_ecommerce/providers/auth_provider.dart';
 import 'package:scratch_ecommerce/providers/cart_provider.dart';
+import 'package:scratch_ecommerce/providers/theme_provider.dart'; // Import ThemeProvider
 import 'package:scratch_ecommerce/screens/home_screen.dart';
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:scratch_ecommerce/screens/auth/login_screen.dart';
 import 'package:scratch_ecommerce/screens/admin/admin_dashboard.dart';
+import 'package:scratch_ecommerce/utils/theme.dart'; // Import AppTheme
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,26 +44,30 @@ class MyApp extends StatelessWidget {
           }
         ),
         ChangeNotifierProvider(create: (_) => CartProvider()),
+          ChangeNotifierProvider(create: (_) => ThemeProvider()), // Add ThemeProvider
       ],
-      child: MaterialApp(
-        title: 'E-commerce App',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-        ),
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, _) {
+        return MaterialApp(
+          title: 'E-commerce App',
+            theme: AppTheme.lightTheme, // Use the light theme
+            darkTheme: AppTheme.darkTheme, // Use the dark theme
+            themeMode: themeProvider.themeMode, // Get the current theme mode
           home:  Consumer<AuthProvider>(
-          builder: (context, authProvider, _) {
-            if (authProvider.user == null) {
+            builder: (context, authProvider, _) {
+              if (authProvider.user == null) {
                 return const LoginScreen();
-            } else if (authProvider.user!.isAdmin == true) {
-                return const AdminDashboard();
-            } else {
-                return const HomeScreen();
+              } else if (authProvider.user!.isAdmin == true) {
+                  return const AdminDashboard();
+              } else {
+                  return const HomeScreen();
+              }
             }
-          }
-        ),
-        debugShowCheckedModeBanner: false,
-      ),
+          ),
+          debugShowCheckedModeBanner: false,
+        );
+      }
+    ),
     );
   }
 }
