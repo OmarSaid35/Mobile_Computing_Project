@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
-import 'package:flutter/foundation.dart' show kIsWeb; // Import kIsWeb
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 
 class BarcodeScannerButton extends StatelessWidget {
@@ -27,7 +27,6 @@ class BarcodeScannerButton extends StatelessWidget {
           onBarcodeScanned(barcodeScanRes);
         }
       } catch (e) {
-        // Handle any errors during scanning
         print('Barcode Scanner Error: $e');
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Error: Could not Scan Barcode')));

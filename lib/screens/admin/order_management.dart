@@ -10,37 +10,6 @@ class OrderManagement extends StatefulWidget {
 
 class _OrderManagementState extends State<OrderManagement> {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final List<dynamic> _orders = [];
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    _getOrders();
-  }
-
-  Future<void> _getOrders() async {
-    try {
-      final snapshot =
-          await FirebaseFirestore.instance.collection('orders').get();
-
-      if (snapshot.docs.isNotEmpty) {
-        // Get all the order documents
-        List<QueryDocumentSnapshot> orders = snapshot.docs;
-
-        // Now you can work with the orders list
-        for (QueryDocumentSnapshot order in orders) {
-          _orders.add(order);
-        }
-      } else {
-        print('No orders found.');
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error getting order: $e')),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +17,7 @@ class _OrderManagementState extends State<OrderManagement> {
       stream: _firestore.collection("orders").snapshots(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          return const Text('Something went wrong');
+          return const Center(child: Text('Something went wrong'));
         }
 
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -57,10 +26,17 @@ class _OrderManagementState extends State<OrderManagement> {
 
         final orders = snapshot.data!.docs;
 
+        if (orders.isEmpty) {
+          return const Center(
+            child: Text("No orders found."),
+          );
+        }
+
         return ListView.builder(
           itemCount: orders.length,
           itemBuilder: (context, index) {
-            final orderData = _orders[index].data() as Map<String, dynamic>;
+            // Access order data directly from the snapshot
+            final orderData = orders[index].data() as Map<String, dynamic>;
             return Card(
               margin: const EdgeInsets.symmetric(
                 horizontal: 16,
