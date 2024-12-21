@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scratch_ecommerce/models/product_model.dart';
 import 'package:scratch_ecommerce/providers/cart_provider.dart';
-import 'package:scratch_ecommerce/providers/theme_provider.dart';
 
 class ProductCard extends StatelessWidget {
   final ProductModel product;
